@@ -259,11 +259,75 @@ module "fortigate_enterprise" {
 
 ## Examples
 
-See the [examples](./examples) directory for complete deployment scenarios:
+### Quick Start Example
 
-- [Basic FGCP](./examples/basic-fgcp) - Simple FGCP cluster
-- [FGSP Scaling](./examples/fgsp-scaling) - Scalable FGSP deployment
-- [Enterprise Setup](./examples/enterprise) - Production-ready configuration
+```hcl
+# main.tf
+terraform {
+  required_providers {
+    azurerm = {
+      source  = "hashicorp/azurerm"
+      version = ">= 4.0"
+    }
+  }
+}
+
+provider "azurerm" {
+  features {}
+  subscription_id = var.subscription_id
+}
+
+# Deploy basic FGCP cluster
+module "fortigate_cluster" {
+  source = "github.com/jmvigueras/azure-fgt-cluster-module?ref=v1.0.0"
+
+  subscription_id = var.subscription_id
+  prefix          = "demo-fgt"
+  location        = "East US"
+  
+  fgt_cluster_type = "fgcp"
+  fgt_number       = 2
+  license_type     = "payg"
+  
+  admin_cidr = "YOUR_IP/32"  # Replace with your public IP
+}
+
+# variables.tf
+variable "subscription_id" {
+  description = "Azure Subscription ID"
+  type        = string
+}
+
+# outputs.tf
+output "fortigate_public_ips" {
+  description = "FortiGate management IPs"
+  value       = module.fortigate_cluster.fgt_nic_ips_map
+}
+
+output "load_balancer_ip" {
+  description = "External Load Balancer IP"
+  value       = module.fortigate_cluster.subnet_ids
+}
+```
+
+### Deployment Commands
+
+```bash
+# 1. Set your Azure subscription
+export TF_VAR_subscription_id="your-subscription-id-here"
+
+# 2. Initialize and deploy
+terraform init
+terraform plan
+terraform apply
+
+# 3. Get outputs
+terraform output
+```
+
+### Advanced Examples
+
+For more comprehensive examples, see the module source code and configuration options above.
 
 ## Troubleshooting
 
