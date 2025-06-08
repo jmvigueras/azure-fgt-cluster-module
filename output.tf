@@ -8,7 +8,8 @@ output "fgt" {
 }
 
 output "api_key" {
-  value = module.fgt_config.api_key
+  sensitive = true
+  value = module.fgt_config["fgt1"].api_key
 }
 
 output "vnet_id" {
