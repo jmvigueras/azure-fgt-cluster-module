@@ -1,10 +1,22 @@
 output "fgt" {
   value = {
-    admin  = var.admin_username
-    pass   = local.admin_password
-    fgt_1  = "https://${module.fgt_ni.ports_config_map["fgt1"]["port3"]["public_ip"]}:${var.admin_port}"
-    fgt_2  = "https://${module.fgt_ni.ports_config_map["fgt2"]["port3"]["public_ip"]}:${var.admin_port}"
+    admin = var.admin_username
+    pass  = local.admin_password
+    fgt_1 = "https://${module.fgt_ni.ports_config_map["fgt1"]["port3"]["public_ip"]}:${var.admin_port}"
+    fgt_2 = "https://${module.fgt_ni.ports_config_map["fgt2"]["port3"]["public_ip"]}:${var.admin_port}"
   }
+}
+
+output "api_key" {
+  value = module.fgt_config.api_key
+}
+
+output "vnet_id" {
+  value = module.fgt_vnet.id
+}
+
+output "vnet_name" {
+  value = module.fgt_vnet.name
 }
 
 output "subnet_cidrs" {

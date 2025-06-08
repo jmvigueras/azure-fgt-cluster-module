@@ -40,7 +40,7 @@ This module creates a complete FortiGate cluster infrastructure including:
 
 ```hcl
 module "fortigate_cluster" {
-  source = "github.com/jmvigueras/azure-fgt-cluster-module?ref=v1.0.2"
+  source = "github.com/jmvigueras/azure-fgt-cluster-module?ref=v1.0.3"
 
   prefix   = "my-fgt-cluster"
   location = "East US"
@@ -67,7 +67,7 @@ module "fortigate_cluster" {
 
 ```hcl
 module "fortigate_fgsp_cluster" {
-  source = "github.com/jmvigueras/azure-fgt-cluster-module?ref=v1.0.2"
+  source = "github.com/jmvigueras/azure-fgt-cluster-module?ref=v1.0.3"
 
   prefix   = "my-fgt-fgsp"
   location = "West Europe"
@@ -98,7 +98,7 @@ module "fortigate_fgsp_cluster" {
 
 ```hcl
 module "fortigate_sdwan_hub" {
-  source = "github.com/jmvigueras/azure-fgt-cluster-module?ref=v1.0.2"
+  source = "github.com/jmvigueras/azure-fgt-cluster-module?ref=v1.0.3"
 
   prefix   = "sdwan-hub"
   location = "Central US"
@@ -127,7 +127,7 @@ module "fortigate_sdwan_hub" {
 
 ```hcl
 module "fortigate_sdwan_spoke" {
-  source = "github.com/jmvigueras/azure-fgt-cluster-module?ref=v1.0.2"
+  source = "github.com/jmvigueras/azure-fgt-cluster-module?ref=v1.0.3"
 
   prefix   = "sdwan-spoke-east"
   location = "East US"
@@ -178,7 +178,7 @@ resource "azurerm_resource_group" "fgt_rg" {
 }
 
 module "fortigate_enterprise" {
-  source = "github.com/jmvigueras/azure-fgt-cluster-module?ref=v1.0.2"
+  source = "github.com/jmvigueras/azure-fgt-cluster-module?ref=v1.0.3"
 
   prefix              = "prod-fgt"
   location            = azurerm_resource_group.fgt_rg.location
@@ -269,7 +269,9 @@ module "fortigate_enterprise" {
 | Name | Description |
 |------|-------------|
 | fgt | Complete FortiGate management information including admin credentials and URLs |
-| subnet_cidrs | CIDR blocks of all subnets |
+| api_key | FortiGate API key for programmatic access |
+| vnet_id | Azure Virtual Network ID |
+| vnet_name | Azure Virtual Network name || subnet_cidrs | CIDR blocks of all subnets |
 | subnet_ids | IDs of all subnets |
 | fgt_nic_ids_list | List of FortiGate network interface IDs |
 | fgt_nic_ips_map | Map of FortiGate network interface IP addresses |
@@ -358,7 +360,7 @@ provider "azurerm" {
 
 # Deploy basic FGCP cluster
 module "fortigate_cluster" {
-  source = "github.com/jmvigueras/azure-fgt-cluster-module?ref=v1.0.2"
+  source = "github.com/jmvigueras/azure-fgt-cluster-module?ref=v1.0.3"
 
   subscription_id = var.subscription_id
   prefix          = "demo-fgt"
