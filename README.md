@@ -18,6 +18,9 @@ A Terraform module for deploying FortiGate clusters on Microsoft Azure with supp
 - 🏷️ **Consistent Tagging**: Standardized resource tagging for better management
 - 🔑 **SSH Key Management**: Automatic SSH key generation and management
 - 🔐 **Password Security**: Random password generation for admin accounts
+- 🌟 **SD-WAN Ready**: Built-in support for SD-WAN Hub and Spoke configurations
+- 🔗 **VPN Connectivity**: Automatic VPN tunnel configuration for SD-WAN deployments
+- 📡 **BGP Support**: Dynamic routing with BGP for SD-WAN networks
 
 ## Architecture
 
@@ -37,7 +40,7 @@ This module creates a complete FortiGate cluster infrastructure including:
 
 ```hcl
 module "fortigate_cluster" {
-  source = "github.com/jmvigueras/azure-fgt-cluster-module?ref=v1.0.0"
+  source = "github.com/jmvigueras/azure-fgt-cluster-module?ref=v1.0.1"
 
   prefix   = "my-fgt-cluster"
   location = "East US"
@@ -64,7 +67,7 @@ module "fortigate_cluster" {
 
 ```hcl
 module "fortigate_fgsp_cluster" {
-  source = "github.com/jmvigueras/azure-fgt-cluster-module?ref=v1.0.0"
+  source = "github.com/jmvigueras/azure-fgt-cluster-module?ref=v1.0.1"
 
   prefix   = "my-fgt-fgsp"
   location = "West Europe"
@@ -91,6 +94,77 @@ module "fortigate_fgsp_cluster" {
 
 ### Enterprise Deployment with Custom Resource Group
 
+### SD-WAN Hub Configuration
+
+```hcl
+module "fortigate_sdwan_hub" {
+  source = "github.com/jmvigueras/azure-fgt-cluster-module?ref=v1.0.1"
+
+  prefix   = "sdwan-hub"
+  location = "Central US"
+  
+  fgt_cluster_type = "fgcp"
+  fgt_number       = 2
+  license_type     = "byol"
+  
+  # Enable SD-WAN Hub functionality
+  config_hub = true
+  
+  hub = [{
+    id                = "HUB-CENTRAL"
+    bgp_asn_hub       = "65001"
+    vpn_cidr          = "172.16.100.0/24"
+    vpn_psk           = "your-secure-psk-key"
+    cidr              = "10.0.0.0/8"
+    vpn_port          = "public"
+  }]
+  
+  admin_cidr = "10.100.0.0/16"
+}
+```
+
+### SD-WAN Spoke Configuration
+
+```hcl
+module "fortigate_sdwan_spoke" {
+  source = "github.com/jmvigueras/azure-fgt-cluster-module?ref=v1.0.1"
+
+  prefix   = "sdwan-spoke-east"
+  location = "East US"
+  
+  fgt_cluster_type = "fgcp"
+  fgt_number       = 2
+  license_type     = "payg"
+  
+  # Enable SD-WAN Spoke functionality
+  config_spoke = true
+  
+  spoke = {
+    id      = "SPOKE-EAST"
+    cidr    = "10.1.0.0/24"
+    bgp_asn = "65002"
+  }
+  
+  # Hub connection details
+  hubs = [{
+    id                = "HUB-CENTRAL"
+    bgp_asn           = "65001"
+    external_ip       = "52.x.x.x"  # Hub public IP
+    hub_ip            = "172.16.100.1"
+    site_ip           = "172.16.100.10"
+    hck_ip            = "172.16.100.1"
+    vpn_psk           = "your-secure-psk-key"
+    cidr              = "10.0.0.0/8"
+    ike_version       = "2"
+    network_id        = "1"
+    dpd_retryinterval = "5"
+    sdwan_port        = "public"
+  }]
+  
+  admin_cidr = "10.100.0.0/16"
+}
+```
+
 ```hcl
 # Create custom resource group
 resource "azurerm_resource_group" "fgt_rg" {
@@ -104,7 +178,7 @@ resource "azurerm_resource_group" "fgt_rg" {
 }
 
 module "fortigate_enterprise" {
-  source = "github.com/jmvigueras/azure-fgt-cluster-module?ref=v1.0.0"
+  source = "github.com/jmvigueras/azure-fgt-cluster-module?ref=v1.0.1"
 
   prefix              = "prod-fgt"
   location            = azurerm_resource_group.fgt_rg.location
@@ -185,7 +259,11 @@ module "fortigate_enterprise" {
 | config_pip_mgmt | Create public IP for management | `bool` | `true` | no |
 | config_pip_public | Create public IP for public interface | `bool` | `true` | no |
 | tags | Tags to apply to all resources | `map(string)` | `{}` | no |
-
+| config_hub | Enable SD-WAN Hub configuration | `bool` | `false` | no |
+| config_spoke | Enable SD-WAN Spoke configuration | `bool` | `false` | no |
+| hub | SD-WAN Hub configuration parameters | `list(object)` | `[]` | no |
+| spoke | SD-WAN Spoke configuration parameters | `object` | See example | no |
+| hubs | List of Hub connection details for Spokes | `list(object)` | `[]` | no |
 ## Outputs
 
 | Name | Description |
@@ -195,8 +273,7 @@ module "fortigate_enterprise" {
 | fgt_nic_ids_list | List of FortiGate network interface IDs |
 | fgt_nic_ips_map | Map of FortiGate network interface IP addresses |
 | fgt_ports_config_map | Port configuration mapping for FortiGates |
-| fgt_config | FortiGate configuration for each instance |
-
+| hubs | SD-WAN Hub connection details for Spoke configuration |
 ## Azure VM Sizes
 
 | VM Size | vCPUs | RAM (GB) | Network Performance | Use Case |
@@ -279,7 +356,7 @@ provider "azurerm" {
 
 # Deploy basic FGCP cluster
 module "fortigate_cluster" {
-  source = "github.com/jmvigueras/azure-fgt-cluster-module?ref=v1.0.0"
+  source = "github.com/jmvigueras/azure-fgt-cluster-module?ref=v1.0.1"
 
   subscription_id = var.subscription_id
   prefix          = "demo-fgt"
