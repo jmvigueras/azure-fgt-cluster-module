@@ -40,7 +40,7 @@ This module creates a complete FortiGate cluster infrastructure including:
 
 ```hcl
 module "fortigate_cluster" {
-  source = "github.com/jmvigueras/azure-fgt-cluster-module?ref=v1.0.1"
+  source = "github.com/jmvigueras/azure-fgt-cluster-module?ref=v1.0.2"
 
   prefix   = "my-fgt-cluster"
   location = "East US"
@@ -67,7 +67,7 @@ module "fortigate_cluster" {
 
 ```hcl
 module "fortigate_fgsp_cluster" {
-  source = "github.com/jmvigueras/azure-fgt-cluster-module?ref=v1.0.1"
+  source = "github.com/jmvigueras/azure-fgt-cluster-module?ref=v1.0.2"
 
   prefix   = "my-fgt-fgsp"
   location = "West Europe"
@@ -98,7 +98,7 @@ module "fortigate_fgsp_cluster" {
 
 ```hcl
 module "fortigate_sdwan_hub" {
-  source = "github.com/jmvigueras/azure-fgt-cluster-module?ref=v1.0.1"
+  source = "github.com/jmvigueras/azure-fgt-cluster-module?ref=v1.0.2"
 
   prefix   = "sdwan-hub"
   location = "Central US"
@@ -127,7 +127,7 @@ module "fortigate_sdwan_hub" {
 
 ```hcl
 module "fortigate_sdwan_spoke" {
-  source = "github.com/jmvigueras/azure-fgt-cluster-module?ref=v1.0.1"
+  source = "github.com/jmvigueras/azure-fgt-cluster-module?ref=v1.0.2"
 
   prefix   = "sdwan-spoke-east"
   location = "East US"
@@ -178,7 +178,7 @@ resource "azurerm_resource_group" "fgt_rg" {
 }
 
 module "fortigate_enterprise" {
-  source = "github.com/jmvigueras/azure-fgt-cluster-module?ref=v1.0.1"
+  source = "github.com/jmvigueras/azure-fgt-cluster-module?ref=v1.0.2"
 
   prefix              = "prod-fgt"
   location            = azurerm_resource_group.fgt_rg.location
@@ -268,12 +268,14 @@ module "fortigate_enterprise" {
 
 | Name | Description |
 |------|-------------|
+| fgt | Complete FortiGate management information including admin credentials and URLs |
 | subnet_cidrs | CIDR blocks of all subnets |
 | subnet_ids | IDs of all subnets |
 | fgt_nic_ids_list | List of FortiGate network interface IDs |
 | fgt_nic_ips_map | Map of FortiGate network interface IP addresses |
 | fgt_ports_config_map | Port configuration mapping for FortiGates |
 | hubs | SD-WAN Hub connection details for Spoke configuration |
+
 ## Azure VM Sizes
 
 | VM Size | vCPUs | RAM (GB) | Network Performance | Use Case |
@@ -356,7 +358,7 @@ provider "azurerm" {
 
 # Deploy basic FGCP cluster
 module "fortigate_cluster" {
-  source = "github.com/jmvigueras/azure-fgt-cluster-module?ref=v1.0.1"
+  source = "github.com/jmvigueras/azure-fgt-cluster-module?ref=v1.0.2"
 
   subscription_id = var.subscription_id
   prefix          = "demo-fgt"
@@ -376,13 +378,24 @@ variable "subscription_id" {
 }
 
 # outputs.tf
-output "fortigate_public_ips" {
-  description = "FortiGate management IPs"
-  value       = module.fortigate_cluster.fgt_nic_ips_map
+output "fortigate_management" {
+  description = "FortiGate management information"
+  value       = module.fortigate_cluster.fgt
 }
 
-output "load_balancer_ip" {
-  description = "External Load Balancer IP"
+output "fortigate_hubs" {
+  description = "SD-WAN Hub information for Spoke connectivity"
+  value       = module.fortigate_cluster.hubs
+  sensitive   = true
+}
+
+output "network_details" {
+  description = "Network configuration details"
+  value = {
+    subnet_ids   = module.fortigate_cluster.subnet_ids
+    subnet_cidrs = module.fortigate_cluster.subnet_cidrs
+  }
+}  description = "External Load Balancer IP"
   value       = module.fortigate_cluster.subnet_ids
 }
 ```
@@ -399,7 +412,16 @@ terraform plan
 terraform apply
 
 # 3. Get outputs
-terraform output
+
+# 4. Access FortiGate management interfaces
+terraform output fgt
+# Output example:
+# {
+#   "admin" = "azureadmin"
+#   "fgt_1" = "https://52.x.x.x:8443"
+#   "fgt_2" = "https://52.y.y.y:8443"
+#   "pass" = "RandomGeneratedPassword123!"
+# }terraform output
 ```
 
 ### Advanced Examples
