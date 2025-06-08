@@ -12,23 +12,23 @@ locals {
 
     config_basic      = local.config_basic
     config_interfaces = local.config_interfaces
-    config_fw_policy  = local.config_fw_policy
 
-    config_fgcp  = var.config_fgcp ? local.config_fgcp : ""
-    config_fgsp  = var.config_fgsp ? local.config_fgsp : ""
-    config_scale = var.config_auto_scale ? local.config_auto_scale : ""
-    config_route = var.static_route_cidrs != null ? local.config_route : ""
-    config_sdwan = var.config_spoke ? local.config_sdwan : ""
-    config_hub   = var.config_hub ? local.config_hub : ""
-    config_vxlan = var.config_vxlan ? local.config_vxlan : ""
-    config_fmg   = var.config_fmg ? local.config_fmg : ""
-    config_faz   = var.config_faz ? local.config_faz : ""
+    config_fw_policy = var.config_fw_policy ? local.config_fw_policy : ""
+    config_fgcp      = var.config_fgcp ? local.config_fgcp : ""
+    config_fgsp      = var.config_fgsp ? local.config_fgsp : ""
+    config_scale     = var.config_auto_scale ? local.config_auto_scale : ""
+    config_route     = var.static_route_cidrs != null ? local.config_route : ""
+    config_sdwan     = var.config_spoke ? local.config_sdwan : ""
+    config_hub       = var.config_hub ? local.config_hub : ""
+    config_vxlan     = var.config_vxlan ? local.config_vxlan : ""
+    config_fmg       = var.config_fmg ? local.config_fmg : ""
+    config_faz       = var.config_faz ? local.config_faz : ""
+    config_xlb       = var.config_xlb ? local.config_xlb : ""
+    config_ars       = var.config_ars ? local.config_ars : ""
+    config_sdn       = var.config_sdn ? local.config_sdn : ""
+    config_gwlb      = var.config_gwlb ? local.config_gwlb : ""
+
     config_extra = var.config_extra
-
-    config_xlb  = var.config_xlb ? local.config_xlb : ""
-    config_ars  = var.config_ars ? local.config_ars : ""
-    config_sdn  = var.config_sdn ? local.config_sdn : ""
-    config_gwlb = var.config_gwlb ? local.config_gwlb : ""
   })
 
   # ----------------------------------------------------------------------------------
@@ -104,20 +104,19 @@ locals {
       hub_id             = lookup(v, "id", "HUB")
       hub_ipsec_id       = "${lookup(v, "id", "HUB")}_ipsec_${i + 1}"
       hub_vpn_psk        = lookup(v, "vpn_psk", random_string.vpn_psk.result)
-      hub_external_ip    = lookup(v, "external_ip")
+      hub_external_ip    = lookup(v, "external_ip", "")
       hub_external_fqdn  = lookup(v, "external_fqdn", "")
-      hub_private_ip     = lookup(v, "private_ip")
-      site_private_ip    = lookup(v, "site_private_ip")
-      hub_bgp_asn        = lookup(v, "bgp_asn")
-      hck_ip             = lookup(v, "hck_ip")
-      hub_cidr           = lookup(v, "cidr")
+      hub_private_ip     = lookup(v, "private_ip", "")
+      hub_bgp_asn        = lookup(v, "bgp_asn", "65000")
+      hub_cidr           = lookup(v, "cidr", "10.0.0.0/8")
+      site_private_ip    = lookup(v, "site_private_ip", "")
+      hck_ip             = lookup(v, "hck_ip", "")
       network_id         = lookup(v, "network_id", "1")
       ike_version        = lookup(v, "ike_version", "2")
       dpd_retryinterval  = lookup(v, "dpd_retryinterval", "5")
-      local_id           = var.spoke["id"]
-      local_bgp_asn      = var.spoke["bgp_asn"]
+      local_id           = lookup(var.spoke, "id", "spoke")
       local_router_id    = local.map_type_ip["public"]
-      local_network      = var.spoke["cidr"]
+      local_network      = lookup(var.spoke, "cidr", "")
       sdwan_port         = local.map_type_port[lookup(v, "sdwan_port", "public")]
       route_map_out      = lookup(v, "route_map_out", "")
       route_map_out_pref = lookup(v, "route_map_out_pref", "")

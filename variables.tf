@@ -145,3 +145,71 @@ variable "fgt_vnet" {
   })
   default = {}
 }
+
+#-----------------------------------------------------------------------------------
+# Predefined variables for SPOKE SDWAN
+# - config_spoke = false
+#-----------------------------------------------------------------------------------
+variable "config_spoke" {
+  description = "Boolean varible to configure fortigate as SDWAN spoke"
+  type        = bool
+  default     = false
+}
+
+variable "spoke" {
+  description = "Default parameters for a site"
+  type = object({
+    id      = optional(string, "spoke")
+    cidr    = optional(string, "10.0.0.0/24")
+    bgp_asn = optional(string, "65000")
+  })
+  default = {}
+}
+
+variable "hubs" {
+  description = "Details to crate VPN connections and SDWAN config"
+  type = list(object({
+    id                = optional(string, "HUB")
+    bgp_asn           = optional(string, "65000")
+    external_ip       = optional(string, "") // leave in blank if use external_fqdn   
+    external_fqdn     = optional(string, "") // leave in blank if use external_ip
+    hub_ip            = optional(string, "172.16.0.1")
+    site_ip           = optional(string, "")
+    hck_ip            = optional(string, "172.16.0.1")
+    vpn_psk           = optional(string, "secret-key-123")
+    cidr              = optional(string, "10.0.0.0/8") // CIRD to be reach throught HUB
+    ike_version       = optional(string, "2")
+    network_id        = optional(string, "1")
+    dpd_retryinterval = optional(string, "5")
+    sdwan_port        = optional(string, "public")
+  }))
+  default = []
+}
+
+#-----------------------------------------------------------------------------------
+# Predefined variables for HUB
+# - config_hub   = false (default) 
+#-----------------------------------------------------------------------------------
+variable "config_hub" {
+  description = "Boolean varible to configure fortigate as a SDWAN HUB"
+  type        = bool
+  default     = false
+}
+
+variable "hub" {
+  description = "Map of string with details to create VPN HUB"
+  type = list(object({
+    id                = optional(string, "HUB")
+    bgp_asn_hub       = optional(string, "65000")
+    bgp_asn_spoke     = optional(string, "65000")
+    vpn_cidr          = optional(string, "172.16.0.0/24")
+    vpn_psk           = optional(string, "secret-key-123")
+    cidr              = optional(string, "10.0.0.0/8") // network to be announces by BGP to peers
+    ike_version       = optional(string, "2")
+    network_id        = optional(string, "1")
+    dpd_retryinterval = optional(string, "5")
+    mode_cfg          = optional(string, true)
+    vpn_port          = optional(string, "public")
+  }))
+  default = []
+}

@@ -18,14 +18,20 @@ output "fgt_ports_config_map" {
   value = module.fgt_ni.ports_config_map
 }
 
-output "fgt_config" {
-  value = { for k, v in module.fgt_config : k => v.config }
+output "hubs" {
+  description = "VPN details for SDWAN spokes to connect to this HUB"
+  sensitive   = true
+  value       = local.o_hubs
 }
 
 #----------------------------------------------------------------------------------
 # Debbuging
 #----------------------------------------------------------------------------------
 /*
+output "fgt_config" {
+  value = { for k, v in module.fgt_config : k => v.config }
+}
+
 output "nics_pair" {
   value = module.fgt_ni.nics_pair
 }

@@ -92,8 +92,8 @@ variable "config_spoke" {
 variable "spoke" {
   description = "Default parameters for a site"
   type = object({
-    id      = optional(string, "fgt")
-    cidr    = optional(string, "172.30.0.0/23")
+    id      = optional(string, "spoke")
+    cidr    = optional(string, "10.0.0.0/24")
     bgp_asn = optional(string, "65000")
   })
   default = {}
@@ -110,7 +110,7 @@ variable "hubs" {
     site_ip           = optional(string, "")
     hck_ip            = optional(string, "172.20.30.1")
     vpn_psk           = optional(string, "secret-key-123")
-    cidr              = optional(string, "172.20.30.0/24")
+    cidr              = optional(string, "10.0.0.0/8") // CIRD to be reach throught HUB
     ike_version       = optional(string, "2")
     network_id        = optional(string, "1")
     dpd_retryinterval = optional(string, "5")
@@ -135,9 +135,9 @@ variable "hub" {
     id                = optional(string, "HUB")
     bgp_asn_hub       = optional(string, "65000")
     bgp_asn_spoke     = optional(string, "65000")
-    vpn_cidr          = optional(string, "10.1.1.0/24")
+    vpn_cidr          = optional(string, "172.16.0.0/24")
     vpn_psk           = optional(string, "secret-key-123")
-    cidr              = optional(string, "172.30.0.0/24")
+    cidr              = optional(string, "10.0.0.0/8") // network to be announces by BGP to peers
     ike_version       = optional(string, "2")
     network_id        = optional(string, "1")
     dpd_retryinterval = optional(string, "5")

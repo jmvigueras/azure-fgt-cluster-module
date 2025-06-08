@@ -1,6 +1,3 @@
-locals {
-  admin_password = var.admin_password == null ? random_string.admin_password.result : var.admin_password
-}
 #------------------------------------------------------------------
 # Deploy FortiGate Cluster in Azure
 #------------------------------------------------------------------
@@ -47,12 +44,20 @@ module "fgt_config" {
   cluster_members = module.fgt_ni.ports_config_map
 
   license_type    = var.license_type
-  fortiflex_token = try(var.fortiflex_tokens[0], "")
+  fortiflex_token = local.fortiflex_tokens[each.key]
 
   config_fgcp       = var.fgt_cluster_type == "fgcp" ? true : false
   config_fgsp       = var.fgt_cluster_type == "fgsp" ? true : false
   config_auto_scale = var.fgt_cluster_type == "fgsp" ? true : false
 
+  config_spoke = var.config_spoke
+  spoke        = var.spoke
+  hubs         = var.hubs
+
+  config_hub = var.config_hub
+  hub        = var.hub
+
+  static_route_cidrs = [var.fgt_vnet["cidr"]]
 }
 // Create FGT cluster
 module "fgt" {
