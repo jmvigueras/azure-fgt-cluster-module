@@ -122,7 +122,7 @@ variable "config_pip_mgmt" {
 variable "config_pip_public" {
   description = "Create Public IP for public interface"
   type        = bool
-  default     = true
+  default     = false
 }
 
 variable "fgt_subnet_names" {

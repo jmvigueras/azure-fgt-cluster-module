@@ -4,7 +4,7 @@
 resource "azurerm_public_ip" "public_ips" {
   for_each = { for k, v in local.index_nics : k => v if v.config_pip }
 
-  name                = "${var.prefix}-${each.key}"
+  name                = "${var.prefix}-${each.value["nic_name"]}"
   location            = var.location
   resource_group_name = var.resource_group_name
   allocation_method   = "Static"
@@ -20,7 +20,7 @@ resource "azurerm_public_ip" "public_ips" {
 resource "azurerm_network_interface" "nics" {
   for_each = local.index_nics
 
-  name                           = "${var.prefix}-${each.key}"
+  name                           = "${var.prefix}-${each.value["nic_name"]}"
   location                       = var.location
   resource_group_name            = var.resource_group_name
   accelerated_networking_enabled = var.accelerate

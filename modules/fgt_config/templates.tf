@@ -10,8 +10,9 @@ locals {
     rsa_public_key = trimspace(var.rsa_public_key)
     api_key        = var.api_key == null ? random_string.api_key.result : var.api_key
 
-    config_basic      = local.config_basic
-    config_interfaces = local.config_interfaces
+    config_basic       = local.config_basic
+    config_interfaces  = local.config_interfaces
+    config_default_bgp = local.config_default_bgp
 
     config_fw_policy = var.config_fw_policy ? local.config_fw_policy : ""
     config_fgcp      = var.config_fgcp ? local.config_fgcp : ""

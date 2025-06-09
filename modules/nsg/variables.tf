@@ -36,11 +36,23 @@ variable "admin_cidrs" {
 }
 
 variable "ingress_allow_ports" {
-  type    = map(map(string))
-  default = {}
+  description = "List of allowed ports with index as priority"
+  type = map(object(
+    {
+      port         = string
+      protocol     = string
+      src_prefixes = list(string)
+      dst_prefixes = list(string)
+    }
+  ))
+  default = {
+    "1001" = { "port" = "80", "protocol" = "Tcp", "src_prefixes" = ["0.0.0.0/0"], "dst_prefixes" = ["0.0.0.0/0"] }
+    "1002" = { "port" = "443", "protocol" = "Tcp", "src_prefixes" = ["0.0.0.0/0"], "dst_prefixes" = ["0.0.0.0/0"] }
+  }
 }
 
 variable "nic_list" {
-  type    = list(string)
-  default = {}
+  description = "Map of ports IDs to asociate the NSG"
+  type        = list(string)
+  default     = {}
 }

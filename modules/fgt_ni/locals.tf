@@ -15,6 +15,7 @@ locals {
         alltrue([strcontains(pair[1], "public"), var.config_pip_public]),
         alltrue([strcontains(pair[1], "mgmt"), var.config_pip_mgmt])
       ])
+      nic_name = "fgt${pair[0] + 1}-${pair[1]}"
     }
   }
 
@@ -27,7 +28,7 @@ locals {
       private_ip  = v.private_ip
       public_pip  = lookup(azurerm_public_ip.public_ips, k, { "ip_address" = "" }).ip_address
       nic_id      = lookup(azurerm_network_interface.nics, k, { "id" = "" }).id
-      nic_name    = "${var.prefix}-${k}"
+      nic_name    = v.nic_name
     }
   }
 

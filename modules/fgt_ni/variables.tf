@@ -73,16 +73,33 @@ variable "cidr_host" {
 }
 
 variable "nsg_mgmt_allow_ports" {
-  type = map(map(string))
+  description = "Details of rules to create in the NSG Management"
+  type = map(object(
+    {
+      port         = string
+      protocol     = string
+      src_prefixes = list(string)
+      dst_prefixes = list(string)
+    }
+  ))
   default = {
-    "1001" = { "port" = "22", "protocol" = "Tcp" }
+    "1001" = { "port" = "22", "protocol" = "Tcp", "src_prefixes" = ["0.0.0.0/0"], "dst_prefixes" = ["0.0.0.0/0"] }
+    "1002" = { "port" = "443", "protocol" = "Tcp", "src_prefixes" = ["0.0.0.0/0"], "dst_prefixes" = ["0.0.0.0/0"] }
+    "1003" = { "port" = "8443", "protocol" = "Tcp", "src_prefixes" = ["0.0.0.0/0"], "dst_prefixes" = ["0.0.0.0/0"] }
   }
 }
 
 variable "nsg_public_allow_ports" {
-  type = map(map(string))
+  description = "Details of rules to create in the NSG Public"
+  type = map(object(
+    {
+      port         = string
+      protocol     = string
+      src_prefixes = list(string)
+      dst_prefixes = list(string)
+    }
+  ))
   default = {
-    "1001" = { "port" = "500", "protocol" = "Udp" }
-    "1002" = { "port" = "4500", "protocol" = "Udp" }
+    "1001" = { "port" = "*", "protocol" = "*", "src_prefixes" = ["0.0.0.0/0"], "dst_prefixes" = ["0.0.0.0/0"] }
   }
 }
