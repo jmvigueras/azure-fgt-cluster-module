@@ -29,7 +29,7 @@ resource "azurerm_lb" "elb" {
 resource "azurerm_lb_probe" "elb_probe" {
   loadbalancer_id     = azurerm_lb.elb.id
   name                = "lbprobe"
-  port                = var.backend-probe_port
+  port                = var.backend_probe_port
   interval_in_seconds = 5
   number_of_probes    = 2
   protocol            = "Tcp"

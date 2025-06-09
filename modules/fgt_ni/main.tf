@@ -24,6 +24,7 @@ resource "azurerm_network_interface" "nics" {
   location                       = var.location
   resource_group_name            = var.resource_group_name
   accelerated_networking_enabled = var.accelerate
+  ip_forwarding_enabled          = true
 
   ip_configuration {
     name                          = "ipconfig1"

@@ -27,7 +27,7 @@ module "fgt_ni" {
   fgt_subnet_cidrs = module.fgt_vnet.subnet_cidrs
 
   config_pip_mgmt   = var.config_pip_mgmt
-  config_pip_public = var.config_pip_public
+  config_pip_public = var.config_xlb ? false : var.config_pip_public
 }
 // FGT Config
 module "fgt_config" {
@@ -39,9 +39,9 @@ module "fgt_config" {
   admin_port     = var.admin_port
   rsa_public_key = trimspace(tls_private_key.ssh.public_key_openssh)
 
-  fgt_id          = each.key
-  ports_config    = each.value
-  cluster_members = module.fgt_ni.ports_config_map
+  fgt_id            = each.key
+  ports_config      = each.value
+  cluster_members   = module.fgt_ni.ports_config_map
 
   license_type    = var.license_type
   fortiflex_token = local.fortiflex_tokens[each.key]
@@ -50,6 +50,10 @@ module "fgt_config" {
   config_fgsp       = var.fgt_cluster_type == "fgsp" ? true : false
   config_auto_scale = var.fgt_cluster_type == "fgsp" ? true : false
 
+  config_xlb = var.config_xlb
+  elb_ip     = module.xlb.elb_public_ip
+  ilb_ip     = module.xlb.ilb_private_ip
+
   config_spoke = var.config_spoke
   spoke        = var.spoke
   hubs         = var.hubs
@@ -57,7 +61,10 @@ module "fgt_config" {
   config_hub = var.config_hub
   hub        = var.hub
 
-  static_route_cidrs = [var.fgt_vnet["cidr"]]
+  config_s2s = var.config_s2s
+  s2s_peers  = var.s2s_peers
+
+  static_route_cidrs = concat([var.fgt_vnet["cidr"]], ["168.63.129.16/32"] ,var.static_route_cidrs)
 }
 // Create FGT cluster
 module "fgt" {
@@ -90,12 +97,16 @@ module "xlb" {
   resource_group_name = var.resource_group_name == null ? azurerm_resource_group.rg[0].name : var.resource_group_name
   tags                = var.tags
 
-  backend-probe_port = "8008"
-
   vnet_id      = module.fgt_vnet.id
   subnet_ids   = module.fgt_vnet.subnet_ids
   subnet_cidrs = module.fgt_vnet.subnet_cidrs
   fgt_ni_ips   = module.fgt_ni.nic_ips_map
+
+  backend_probe_port     = var.backend_probe_port
+  elb_floating_ip_enable = var.elb_floating_ip_enable
+  ilb_floating_ip_enable = var.ilb_floating_ip_enable
+
+  ilb_ip = var.ilb_ip
 }
 
 

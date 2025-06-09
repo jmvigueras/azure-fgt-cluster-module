@@ -21,6 +21,7 @@ locals {
     config_route     = var.static_route_cidrs != null ? local.config_route : ""
     config_sdwan     = var.config_spoke ? local.config_sdwan : ""
     config_hub       = var.config_hub ? local.config_hub : ""
+    config_s2s       = var.config_s2s ? local.config_s2s : ""
     config_vxlan     = var.config_vxlan ? local.config_vxlan : ""
     config_fmg       = var.config_fmg ? local.config_fmg : ""
     config_faz       = var.config_faz ? local.config_faz : ""
@@ -237,8 +238,29 @@ locals {
     vdi_int      = lookup(var.gwlb, "vdi_int", "")
     port_ext     = lookup(var.gwlb, "port_ext", "")
     port_int     = lookup(var.gwlb, "port_int", "")
-    private_port = local.map_type_ip["private"]
+    private_port = local.map_type_port["private"]
   })
 
+  # Create Site to Site config with SDWAN
+  config_s2s = join("\n", [for i, v in var.s2s_peers :
+    templatefile("${path.module}/templates/fgt_s2s.conf", {
+      local_id          = lookup(v, "id", "s2s")
+      remote_gw         = lookup(v, "remote_gw", "")
+      local_gw          = lookup(v, "local_gw", "")
+      vpn_intf_id       = "${v["id"]}_ipsec_${i + 1}"
+      vpn_remote_ip     = lookup(v, "vpn_remote_ip", "")
+      vpn_local_ip      = lookup(v, "vpn_local_ip", "")
+      vpn_cidr_mask     = cidrnetmask(v["vpn_cidr"])
+      vpn_psk           = lookup(v, "vpn_psk", "")
+      vpn_port          = local.map_type_port[lookup(v, "vpn_port", "public")]
+      network_id        = lookup(v, "network_id", "11")
+      ike_version       = lookup(v, "ike_version", "2")
+      dpd_retryinterval = lookup(v, "dpd_retryinterval", "5")
+      bgp_asn_remote    = lookup(v, "bgp_asn_remote", "65000")
+      hck_ip            = lookup(v, "hck_ip", "")
+      remote_cidr       = lookup(v, "remote_cidr", "10.0.0.0/8")
+      count             = i + 1
+    })]
+  )
 }
 

@@ -16,12 +16,6 @@ variable "resource_group_name" {
   default     = null
 }
 
-variable "storage-account_endpoint" {
-  description = "Storage account endpoint"
-  type        = string
-  default     = null
-}
-
 variable "tags" {
   description = "Tags to be added to all resources"
   type        = map(string)
@@ -76,19 +70,7 @@ variable "fgt_size" {
 variable "fgt_version" {
   description = "FortiGate version"
   type        = string
-  default     = "7.4.7"
-}
-
-variable "ilb_ip" {
-  description = "Private IP for internal Load Balancer"
-  type        = string
-  default     = null
-}
-
-variable "backend_probe_port" {
-  description = "Private IP for internal Load Balancer"
-  type        = string
-  default     = null
+  default     = "7.4.8"
 }
 
 variable "fgt_api_key_enabled" {
@@ -122,7 +104,7 @@ variable "config_pip_mgmt" {
 variable "config_pip_public" {
   description = "Create Public IP for public interface"
   type        = bool
-  default     = false
+  default     = true
 }
 
 variable "fgt_subnet_names" {
@@ -144,6 +126,45 @@ variable "fgt_vnet" {
     })
   })
   default = {}
+}
+
+variable "static_route_cidrs" {
+  description = "List of static route CIDRs"
+  type        = list(string)
+  default     = []
+}
+
+#-----------------------------------------------------------------------------------
+# XLB variables
+#-----------------------------------------------------------------------------------
+variable "config_xlb" {
+  description = "Deploy external and internal Load Balancers"
+  type        = bool
+  default     = true
+}
+
+variable "elb_floating_ip_enable" {
+  description = "Enable External LB frontend floating IP"
+  type        = bool
+  default     = false
+}
+
+variable "ilb_floating_ip_enable" {
+  description = "Enable Internal LB frontend floating IP"
+  type        = bool
+  default     = false
+}
+
+variable "ilb_ip" {
+  description = "Private IP for internal Load Balancer"
+  type        = string
+  default     = null
+}
+
+variable "backend_probe_port" {
+  description = "Private IP for internal Load Balancer"
+  type        = string
+  default     = "8008"
 }
 
 #-----------------------------------------------------------------------------------
@@ -200,16 +221,48 @@ variable "hub" {
   description = "Map of string with details to create VPN HUB"
   type = list(object({
     id                = optional(string, "HUB")
+    local_gw          = optional(string, "")
     bgp_asn_hub       = optional(string, "65000")
     bgp_asn_spoke     = optional(string, "65000")
     vpn_cidr          = optional(string, "172.16.0.0/24")
     vpn_psk           = optional(string, "secret-key-123")
+    vpn_port          = optional(string, "public")
     cidr              = optional(string, "10.0.0.0/8") // network to be announces by BGP to peers
     ike_version       = optional(string, "2")
     network_id        = optional(string, "1")
     dpd_retryinterval = optional(string, "5")
     mode_cfg          = optional(string, true)
+  }))
+  default = []
+}
+
+#-----------------------------------------------------------------------------------
+# Config Site to Site tunnels
+# - config_s2s   = false (default) 
+#-----------------------------------------------------------------------------------
+variable "config_s2s" {
+  description = "Boolean varible to configure IPSEC site to site connections"
+  type        = bool
+  default     = false
+}
+
+variable "s2s_peers" {
+  description = "Details for site to site connections beteween fortigates"
+  type = list(object({
+    id                = optional(string, "s2s")
+    remote_gw         = optional(string, "")
+    local_gw          = optional(string, "")
+    bgp_asn_remote    = optional(string, "65000")
     vpn_port          = optional(string, "public")
+    vpn_cidr          = optional(string, "10.10.10.0/27")
+    vpn_psk           = optional(string, "")
+    vpn_local_ip      = optional(string, "10.10.10.1")
+    vpn_remote_ip     = optional(string, "10.10.10.2")
+    ike_version       = optional(string, "2")
+    network_id        = optional(string, "1")
+    dpd_retryinterval = optional(string, "5")
+    hck_ip            = optional(string, "10.10.10.2")
+    remote_cidr       = optional(string, "172.16.0.0/12")
   }))
   default = []
 }

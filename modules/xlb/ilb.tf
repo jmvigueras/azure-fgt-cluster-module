@@ -26,7 +26,7 @@ resource "azurerm_lb_backend_address_pool" "ilb_backend" {
 resource "azurerm_lb_probe" "ilb_probe" {
   loadbalancer_id     = azurerm_lb.ilb.id
   name                = "lbprobe"
-  port                = var.backend-probe_port
+  port                = var.backend_probe_port
   interval_in_seconds = 5
   number_of_probes    = 2
   protocol            = "Tcp"

@@ -103,3 +103,18 @@ variable "nsg_public_allow_ports" {
     "1001" = { "port" = "*", "protocol" = "*", "src_prefixes" = ["0.0.0.0/0"], "dst_prefixes" = ["0.0.0.0/0"] }
   }
 }
+
+variable "nsg_private_allow_ports" {
+  description = "Details of rules to create in the NSG Public"
+  type = map(object(
+    {
+      port         = string
+      protocol     = string
+      src_prefixes = list(string)
+      dst_prefixes = list(string)
+    }
+  ))
+  default = {
+    "1001" = { "port" = "*", "protocol" = "*", "src_prefixes" = ["0.0.0.0/0"], "dst_prefixes" = ["0.0.0.0/0"] }
+  }
+}

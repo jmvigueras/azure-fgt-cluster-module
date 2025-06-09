@@ -20,8 +20,9 @@ locals {
   # -----------------------------------------------------------------------------------------------------
   # Cluster variables
   # -----------------------------------------------------------------------------------------------------
-  # Member ID
-  cluster_member_id = var.cluster_member_id
+  # Cluster member ID get from list of cluster members
+  cluster_member_id = index(keys(var.cluster_members), var.fgt_id)
+
   # Member peers ips
   cluster_peer_ips = [
     for k, v in var.cluster_members :
@@ -37,7 +38,7 @@ locals {
   # FGCP port name
   fgcp_port_name = var.fgcp_port
   # FGCP priority
-  fgcp_priority = 210 - local.cluster_member_id * 10
+  fgcp_priority = 200 - local.cluster_member_id * 10
   # FGCP port 
   fgcp_port = lookup(local.map_type_port, local.fgcp_port_name, "")
   # FGCP IP

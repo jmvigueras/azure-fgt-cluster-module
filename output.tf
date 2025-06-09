@@ -9,7 +9,7 @@ output "fgt" {
 
 output "api_key" {
   sensitive = true
-  value = module.fgt_config["fgt1"].api_key
+  value     = module.fgt_config["fgt1"].api_key
 }
 
 output "vnet_id" {
@@ -38,6 +38,13 @@ output "fgt_nic_ips_map" {
 
 output "fgt_ports_config_map" {
   value = module.fgt_ni.ports_config_map
+}
+
+output "xlb" {
+  value = {
+    elb_public_ip  = module.xlb.elb_public_ip
+    ilb_private_ip = module.xlb.ilb_private_ip
+  }
 }
 
 output "hubs" {

@@ -92,7 +92,7 @@ variable "gwlb_vxlan" {
 }
 
 // Fortigate interface probe port
-variable "backend-probe_port" {
+variable "backend_probe_port" {
   type    = string
   default = "8008"
 }
